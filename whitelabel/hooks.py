@@ -6,11 +6,11 @@ from . import __logo__ as app_logo
 
 app_name = "whitelabel"
 app_title = "Whitelabel"
-app_publisher = "Bhavesh Maheshwari"
+app_publisher = "VIS"
 app_description = "ERPNext Whitelabel"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
-app_email = "maheshwaribhavesh95863@gmail.com"
+app_email = "moustafa.imym@gmail.com"
 app_license = "MIT"
 app_logo_url = '/assets/whitelabel/images/whitelabel_logo.jpg'
 
@@ -64,7 +64,7 @@ after_migrate = ['whitelabel.api.whitelabel_patch']
 # ------------
 
 # before_install = "whitelabel.install.before_install"
-# after_install = "whitelabel.install.after_install"
+after_install = "whitelabel.install.after_install"
 
 # Desk Notifications
 # ------------------
