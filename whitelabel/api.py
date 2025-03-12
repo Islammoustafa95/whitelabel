@@ -11,6 +11,27 @@ def whitelabel_patch():
 	if frappe.db.exists("Blog Post", "Welcome"):
 		frappe.db.set_value("Blog Post","Welcome","content","")
 	update_field_label()
+	
+	# Create or update Whitelabel Setting
+	if not frappe.db.exists("Whitelabel Setting", "Whitelabel Setting"):
+		doc = frappe.get_doc({
+			"doctype": "Whitelabel Setting",
+			"name": "Whitelabel Setting",
+			"application_logo": "/assets/whitelabel/images/whitelabel_logo.jpg",
+			"custom_navbar_title": "ZaynERP",
+			"disable_new_update_popup": 1,
+			"disable_standard_footer": 1
+		})
+		doc.insert(ignore_permissions=True)
+	else:
+		doc = frappe.get_doc("Whitelabel Setting", "Whitelabel Setting")
+		if not doc.application_logo:
+			doc.application_logo = "/assets/whitelabel/images/whitelabel_logo.jpg"
+			doc.custom_navbar_title = "ZaynERP"
+			doc.disable_new_update_popup = 1
+			doc.disable_standard_footer = 1
+			doc.save(ignore_permissions=True)
+	
 	if cint(get_frappe_version()) >= 13 and not frappe.db.get_single_value('Whitelabel Setting', 'ignore_onboard_whitelabel'):
 		update_onboard_details()
 
@@ -46,7 +67,6 @@ def update_onborad_steps():
 def boot_session(bootinfo):
 	"""boot session - send website info if guest"""
 	if frappe.session['user']!='Guest':
-
 		bootinfo.whitelabel_setting = frappe.get_doc("Whitelabel Setting","Whitelabel Setting")
 
 @frappe.whitelist()
