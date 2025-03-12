@@ -20,16 +20,18 @@ def whitelabel_patch():
 			"application_logo": "/assets/whitelabel/images/whitelabel_logo.jpg",
 			"custom_navbar_title": "ZaynERP",
 			"disable_new_update_popup": 1,
-			"disable_standard_footer": 1
+			"disable_standard_footer": 1,
+			"ignore_onboard_whitelabel": 1
 		})
 		doc.insert(ignore_permissions=True)
 	else:
 		doc = frappe.get_doc("Whitelabel Setting", "Whitelabel Setting")
-		if not doc.application_logo:
+		if not doc.application_logo or not doc.ignore_onboard_whitelabel:
 			doc.application_logo = "/assets/whitelabel/images/whitelabel_logo.jpg"
 			doc.custom_navbar_title = "ZaynERP"
 			doc.disable_new_update_popup = 1
 			doc.disable_standard_footer = 1
+			doc.ignore_onboard_whitelabel = 1
 			doc.save(ignore_permissions=True)
 	
 	# Add translations
