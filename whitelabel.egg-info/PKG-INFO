@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: whitelabel
+Version: 0.0.1
+Summary: ERPNext Whitelabel
+Author: Bhavesh Maheshwari
+Author-email: maheshwaribhavesh95863@gmail.com
+License-File: LICENSE
+Requires-Dist: frappe
