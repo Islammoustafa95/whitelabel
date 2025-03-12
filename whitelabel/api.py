@@ -32,6 +32,42 @@ def whitelabel_patch():
 			doc.disable_standard_footer = 1
 			doc.save(ignore_permissions=True)
 	
+	# Add translations
+	translations_to_add = [
+		{
+			"source_text": "ERPNext Settings",
+			"translated_text": "ZaynERP Settings",
+			"language": "en"
+		},
+		{
+			"source_text": "ERPNext Integrations",
+			"translated_text": "ZaynERP Integrations",
+			"language": "en"
+		}
+	]
+	
+	for translation in translations_to_add:
+		# Check if translation exists
+		filters = {
+			"source_text": translation["source_text"],
+			"language": translation["language"]
+		}
+		
+		if not frappe.db.exists("Translation", filters):
+			doc = frappe.get_doc({
+				"doctype": "Translation",
+				"source_text": translation["source_text"],
+				"translated_text": translation["translated_text"],
+				"language": translation["language"]
+			})
+			doc.insert(ignore_permissions=True)
+		else:
+			# Update existing translation
+			name = frappe.db.get_value("Translation", filters, "name")
+			doc = frappe.get_doc("Translation", name)
+			doc.translated_text = translation["translated_text"]
+			doc.save(ignore_permissions=True)
+	
 	if cint(get_frappe_version()) >= 13 and not frappe.db.get_single_value('Whitelabel Setting', 'ignore_onboard_whitelabel'):
 		update_onboard_details()
 
