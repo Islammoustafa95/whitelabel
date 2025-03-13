@@ -12,9 +12,10 @@ def whitelabel_patch():
 		frappe.db.set_value("Blog Post","Welcome","content","")
 	update_field_label()
 	
-	# Create or update Whitelabel Setting
+	# Create or update Whitelabel Setting and force apply settings
+	whitelabel_settings = None
 	if not frappe.db.exists("Whitelabel Setting", "Whitelabel Setting"):
-		doc = frappe.get_doc({
+		whitelabel_settings = frappe.get_doc({
 			"doctype": "Whitelabel Setting",
 			"name": "Whitelabel Setting",
 			"application_logo": "/assets/whitelabel/images/whitelabel_logo.jpg",
@@ -23,16 +24,46 @@ def whitelabel_patch():
 			"disable_standard_footer": 1,
 			"ignore_onboard_whitelabel": 1
 		})
-		doc.insert(ignore_permissions=True)
+		whitelabel_settings.insert(ignore_permissions=True)
 	else:
-		doc = frappe.get_doc("Whitelabel Setting", "Whitelabel Setting")
-		if not doc.application_logo or not doc.ignore_onboard_whitelabel:
-			doc.application_logo = "/assets/whitelabel/images/whitelabel_logo.jpg"
-			doc.custom_navbar_title = "ZaynERP"
-			doc.disable_new_update_popup = 1
-			doc.disable_standard_footer = 1
-			doc.ignore_onboard_whitelabel = 1
-			doc.save(ignore_permissions=True)
+		whitelabel_settings = frappe.get_doc("Whitelabel Setting", "Whitelabel Setting")
+		if not whitelabel_settings.application_logo or not whitelabel_settings.ignore_onboard_whitelabel:
+			whitelabel_settings.application_logo = "/assets/whitelabel/images/whitelabel_logo.jpg"
+			whitelabel_settings.custom_navbar_title = "ZaynERP"
+			whitelabel_settings.disable_new_update_popup = 1
+			whitelabel_settings.disable_standard_footer = 1
+			whitelabel_settings.ignore_onboard_whitelabel = 1
+			whitelabel_settings.save(ignore_permissions=True)
+	
+	# Force apply settings to system
+	if whitelabel_settings:
+		# Update System Settings
+		system_settings = frappe.get_doc("System Settings", "System Settings")
+		system_settings.app_name = whitelabel_settings.whitelabel_app_name or "ZaynERP"
+		system_settings.disable_system_update_notification = whitelabel_settings.disable_new_update_popup
+		system_settings.disable_standard_email_footer = whitelabel_settings.disable_standard_footer
+		system_settings.enable_onboarding = 0 if whitelabel_settings.ignore_onboard_whitelabel else 1
+		system_settings.flags.ignore_mandatory = True
+		system_settings.save(ignore_permissions=True)
+
+		# Update Navbar Settings
+		navbar_settings = frappe.get_doc("Navbar Settings", "Navbar Settings")
+		navbar_settings.app_logo = whitelabel_settings.application_logo
+		navbar_settings.flags.ignore_mandatory = True
+		navbar_settings.save(ignore_permissions=True)
+
+		# Update Website Settings
+		website_settings = frappe.get_doc("Website Settings", "Website Settings")
+		website_settings.app_logo = whitelabel_settings.application_logo
+		website_settings.splash_image = whitelabel_settings.application_logo
+		website_settings.flags.ignore_mandatory = True
+		website_settings.save(ignore_permissions=True)
+
+		# Update site config
+		frappe.db.set_value("Website Settings", "Website Settings", "app_logo", whitelabel_settings.application_logo)
+		frappe.db.set_value("Navbar Settings", "Navbar Settings", "app_logo", whitelabel_settings.application_logo)
+		frappe.db.commit()
+		frappe.clear_cache()
 	
 	# Add translations
 	translations_to_add = [
